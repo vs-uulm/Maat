@@ -1,0 +1,84 @@
+apply plugin: 'java'
+
+version = '1.0'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+buildDir = 'bin'
+
+def mainClassName = "de.uulm.vs.autodetect.mds.framework.view.Maat"
+def defaultArgs = ['./testdata/WithAttacker-A1-1/JSONlog-30-187-A0.json']
+
+sourceSets {
+    main {
+        java.srcDirs = ['src', 'subjective-logic/src']
+        /* At the moment the only resource is the log4j2.xml file. */
+        resources.srcDirs = ['src']
+        resources.exclude '**/*.java'
+    }
+    test { java.srcDirs = ['test'] }
+}
+test {
+    testLogging {
+        events "failed"
+        info.events = ["failed", "skipped"]
+    }
+}
+
+jar {
+    baseName = 'Maat'
+    manifest {
+        attributes 'Implementation-Title': 'Maat Framework',
+        'Implementation-Version': version,
+        'Main-Class': 'de.uulm.vs.autodetect.mds.framework.view.Maat'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+/* Own Helper used for regression testing during CI */
+task printJarPath { doLast { print jar.archivePath } }
+/* Own Helper used for regression testing during CI */
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.7'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.7'
+    compile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
+    compile group: 'org.jgrapht', name: 'jgrapht-core', version: '1.0.1'
+    compile group: 'com.opencsv', name: 'opencsv', version: '3.8'
+    testCompile 'junit:junit:4.12'
+}
+
+task printClasspath {
+  doLast { print sourceSets.main.runtimeClasspath.asPath }
+}
+
+task run(dependsOn: build, type:JavaExec) {
+    description "Execute Maat locally"
+
+    doLast{
+        print 'Application exited'
+    }
+
+    classpath = sourceSets.main.runtimeClasspath
+    main = mainClassName
+
+    //args for application
+    //http://stackoverflow.com/questions/27604283/gradle-task-pass-arguments-to-java-application
+    if(project.hasProperty("appArgs")) {
+        args Eval.me(appArgs)
+    } 
+    else {
+        args defaultArgs
+    }
+}
+
+//ensure that certain types of warnings are included
+//see https://stackoverflow.com/a/25681073
+compileJava {
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+}

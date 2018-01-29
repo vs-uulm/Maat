@@ -1,0 +1,172 @@
+#!/bin/bash
+#MSUB -N maat_job
+#MSUB -j oe
+#MSUB -o $(JOBNAME).$(JOBID)
+#MSUB -m a
+#MSUB -q singlenode
+#MSUB -M 'rens.vanderheijden@uni-ulm.de'
+#MSUB -l nodes=1:ppn=4
+#MSUB -l pmem=2000mb
+#MSUB -l walltime=3:00:00
+#
+# NOTE: Param 1 MUST be path to posverif file
+#       Param 2 is the attacker type (optional)
+#
+POSVERIF_FILE=$1
+MAX_PROCS=2
+ATTACKER_TYPE=""
+
+if [ ! -z "$2" ]; then
+  ATTACKER_TYPE="$2"
+fi
+
+start=$(date +%s)
+
+echo " "
+echo "### Setting up shell environment ..."
+echo " "
+if test -e "/etc/profile"; then source "/etc/profile"; fi;
+if test -e "$HOME/.bash_profile"; then source "$HOME/.bash_profile"; fi;
+#unset LANG; export LC_ALL="C"; export MKL_NUM_THREADS=1; export OMP_NUM_THREADS=1
+export USER=${USER:=`logname`}
+export SLURM_JOB_ID=${SLURM_JOB_ID:=`date +%s`}
+export SLURM_SUBMIT_DIR=${SLURM_SUBMIT_DIR:=`pwd`}
+export SLURM_JOB_NAME=${SLURM_JOB_NAME:=`basename "$0"`}
+export SLURM_JOB_NAME=$(echo "${SLURM_JOB_NAME}" | sed 's/[^a-zA-Z0-9._-]/_/g')
+
+echo " "
+echo "### Printing basic job infos to stdout ..."
+echo " "
+echo "START_TIME           = `date +'%y-%m-%d %H:%M:%S %s'`"
+echo "HOSTNAME             = ${HOSTNAME}"
+echo "USER                 = ${USER}"
+echo "SLURM_JOB_NAME       = ${SLURM_JOB_NAME}"
+echo "SLURM_JOB_ID         = ${SLURM_JOB_ID}"
+echo "SLURM_SUBMIT_DIR     = ${SLURM_SUBMIT_DIR}"
+echo "SLURM_NTASKS         = ${SLURM_NTASKS}"
+echo "SLURM_NODELIST       = ${SLURM_NODELIST}"
+
+echo "Working Directory:                    $PWD"
+echo "Running on host                       $HOSTNAME"
+echo "Job id:                               $MOAB_JOBID"
+echo "Job name:                             $MOAB_JOBNAME"
+echo "Number of nodes allocated to job:     $MOAB_NODECOUNT"
+echo "Number of cores allocated to job:     $MOAB_PROCCOUNT"
+
+MAAT_DIR="${HOME}/maat"
+
+# load modules
+module load devel/java_jdk/1.8.0
+
+if [ -z "${JAVA_HOME}" ]; then
+  echo "ERROR: Could not load module 'devel/java_jdk/1.8.0'."
+  exit 101
+fi
+
+# create work dir
+echo " "
+echo "### Creating JOB directory in WORKSPACE"
+echo " "
+JOB_WORK_DIR="${WORK}/${SLURM_JOB_NAME}.uc1.${SLURM_JOB_ID%%.*}.$(date +%y%m%d_%H%M%S)"
+
+if [ -z ${JOB_WORK_DIR} ]; then echo "could not determine job working directory, using /tmp"; JOB_WORK_DIR="/tmp"; fi
+
+echo "JOB_WORK_DIR = ${JOB_WORK_DIR}"
+
+mkdir -vp "${JOB_WORK_DIR}"
+cd "${JOB_WORK_DIR}"
+
+cp -r "${MAAT_DIR}" "${JOB_WORK_DIR}"
+export LOCAL_MAAT_DIR="${JOB_WORK_DIR}/maat"
+
+echo "LOCAL_MAAT_DIR = ${LOCAL_MAAT_DIR}"
+cd "${LOCAL_MAAT_DIR}"
+
+# extracting ${POSVERIF_FILE}
+INPUT_DIR="${LOCAL_MAAT_DIR}/input_data"
+mkdir -p "${INPUT_DIR}"
+#only legitimate vehicles participate in detection
+tar -xvzf "${POSVERIF_FILE}" -C "${INPUT_DIR}" --strip-components=8 `tar -tf "${POSVERIF_FILE}" | grep 'A0.json'`
+JSONLogs="${INPUT_DIR}/JSONlog-*-A0.json"
+
+
+echo ''
+echo "############"
+echo "# Starting #"
+echo "############"
+
+## get classpath from gradle
+#CP="$(./gradlew printClassPath | grep -A 1 printClasspath | tail -n 1)"
+#if [ -z ${CLASSPATH} ]; then
+#  export CLASSPATH="${CP}"
+#else
+#  export CLASSPATH="${CLASSPATH}:${CP}"
+#fi
+#echo "CLASSPATH = ${CLASSPATH}"
+MAIN_CLASS="de.uulm.vs.autodetect.mds.framework.view.Maat"
+
+# run AutoDetect-framework-implementation
+#find ${JSONLogs} | xargs --max-procs=${MAX_PROCS} -i ./gradlew run -x build -x classes -PappArgs="['{}']" > "${LOCAL_MAAT_DIR}/log.txt"
+find ${JSONLogs} | parallel --joblog "parallel-log.txt" --max-procs=${MAX_PROCS} -I% java -jar "${LOCAL_MAAT_DIR}/Maat.jar" "%" > "${LOCAL_MAAT_DIR}/log.txt"
+FAILED_JOBS="$?"
+
+RESULTS_DIR="${LOCAL_MAAT_DIR}/results"
+mkdir -p "${RESULTS_DIR}"
+
+if (! test -d "${RESULTS_DIR}") || test ${FAILED_JOBS} -gt 0 ; then
+ echo "No resultdir, or some jobs failed"
+ exit 102
+fi
+
+tar -xvzf "${POSVERIF_FILE}" -C "${RESULTS_DIR}" --strip-components=9 `tar -tf "${POSVERIF_FILE}" | grep '.sca'`
+
+# move detection results to RESULTS_DIR
+mv *.json "${RESULTS_DIR}"
+ls -1 "${RESULTS_DIR}" > input.txt
+mv input.txt "${RESULTS_DIR}"
+
+LOGS_DIR="${RESULTS_DIR}/logs"
+mkdir -p "${LOGS_DIR}"
+mv log.txt "${LOGS_DIR}"
+mv parallel-log.txt "${LOGS_DIR}"
+
+mv *.txt "${RESULTS_DIR}"
+
+# copy GroundTruthJSONlog.json to RESULTS_DIR
+tar -xvzf "${POSVERIF_FILE}" -C "${RESULTS_DIR}" --strip-components=8 `tar -tf "${POSVERIF_FILE}" | grep 'GroundTruthJSONlog.json'`
+
+#let RUNS=$H-$L+1
+#RES_FILE_COUNT=$(ls "${SIMULATION_DIR}/results/" | grep .sca | wc -l)
+#if [ $RES_FILE_COUNT -lt $RUNS ]; then
+# echo "Not all runs ran through"
+#fi
+
+end=$(date +%s)
+echo " "
+echo "### Calculate duration ..."
+echo " "
+diff=$[end-start]
+if [ $diff -lt 60 ]; then
+   echo "Runtime (approx.): '$diff' secs" > "${LOGS_DIR}/duration.txt"
+elif [ $diff -ge 60 ]; then
+   echo 'Runtime (approx.): '$[$diff / 60] 'min(s) '$[$diff % 60] 'secs' > "${LOGS_DIR}/duration.txt"
+fi
+
+echo " "
+echo "### Compressing results and copying back result archive ..."
+echo " "
+
+# compress results and move them to HOME directory
+RUN_NUMBER=$(tar -tf "${POSVERIF_FILE}" | grep RUN | sed 's/.*RUN_\([0-9]*\).*/\1/')
+OUTPUT_FILENAME="${WORK}/A${ATTACKER_TYPE}_R${RUN_NUMBER}_${SLURM_JOB_NAME}.uc1.${SLURM_JOB_ID%%.*}.$(date +%y%m%d_%H%M%S).tgz"
+mkdir -vp "${SLURM_SUBMIT_DIR}" # if user has deleted or moved the submit dir
+echo "Creating result tgz-file '${OUTPUT_FILENAME}' ..."
+tar -zcvf "${OUTPUT_FILENAME}" "${RESULTS_DIR}" \
+  || { echo "ERROR: Failed to create tgz-file. Please cleanup JOB_WORK_DIR '$JOB_WORK_DIR' on host '$HOSTNAME' manually (if not done automatically by queueing system)."; exit 103; }
+mv "${OUTPUT_FILENAME}" "${HOME}/"
+
+echo " "
+echo "### Final cleanup..."
+echo " "
+rm -rvf "${JOB_WORK_DIR}"
+echo "END_TIME             = `date +'%y-%m-%d %H:%M:%S %s'`"

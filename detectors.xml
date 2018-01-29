@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<detectors>
+<!-- Original detectors by Leinmueller et al. and Schmidt et al.
+       See DOI:10.1002/sec.56 and http://leinmueller.de/lib/exe/fetch.php/publications/slshs08vebas.pdf
+       -->
+    <det>
+        <name>ART</name>
+        <factoryname>ARTFactory</factoryname>
+        <parameters>
+            <key name="THRESHOLD" type="Double">300</key>
+        </parameters>
+        <parameters>
+            <key name="THRESHOLD" type="Double">400</key>
+        </parameters>
+      </det>
+    <det>
+        <name>MDM</name>
+        <factoryname>MDMFactory</factoryname>
+        <parameters>
+            <key name="THRESHOLD_DISTANCE" type="Double">30</key>
+            <key name="THRESHOLD_TIME" type="Double">10</key>
+        </parameters>
+    </det>
+    <det>
+        <name>MGT</name>
+        <factoryname>MGTFactory</factoryname>
+        <parameters>
+            <key name="THRESHOLD" type="Double">42</key>
+        </parameters>
+    </det>
+    <det>
+        <name>SAW</name>
+        <factoryname>SAWFactory</factoryname>
+        <parameters>
+            <key name="THRESHOLD" type="Double">200</key>
+        </parameters>
+    </det>
+    <!-- Missing detectors from 10.1002/sec.56:
+         - maximum density threshold
+         - pro-active exchange
+         - reactive requests (not compatible with Maat's off-line variant)
+    -->
+    <!-- Missing detectors from http://leinmueller.de/lib/exe/fetch.php/publications/slshs08vebas.pdf:
+         - movement analysis (+/-)
+         - sensor-proofed position
+         - maximum beaconing frequency
+         - map-proofed position (would require adding map input to Maat; possible but big hurdle)
+    -->
+
+<!-- Original Detector by Bissmeyer et al.:
+      See DOI:10.1109/VNC.2010.5698232
+      -->
+    <det>
+        <name>OPD</name>
+        <factoryname>OPDFactory</factoryname>
+        <parameters>
+            <key name="THRESHOLD_DISTANCE" type="Double">50</key>
+        </parameters>
+    </det>
+
+<!-- SL-enhanced version of Bissmeyer's detector, written by Florian Diemer -->
+    <det>
+        <name>eOPD</name>
+        <factoryname>eOPDFactory</factoryname>
+        <parameters>
+            <key name="THRESHOLD_DISTANCE" type="Double">50</key>
+            <key name="GAMMA" type="Double">0.5</key>
+        </parameters>
+    </det>
+
+<!-- SL-enhanced versions of Leinmueller and Schmidt et al detectors, co-contributed by Rens van der Heijden and Florian Diemer -->
+    <det>
+        <name>eSAW</name>
+        <factoryname>eSAWFactory</factoryname>
+        <parameters>
+            <key name="THRESHOLD" type="Double">200</key>
+            <key name="SIGMA2" type="Double">29020</key>
+        </parameters>
+    </det>
+    <det>
+        <name>eART</name>
+        <factoryname>eARTFactory</factoryname>
+        <parameters>
+            <key name="THRESHOLD" type="Double">400</key>
+            <key name="SIGMA2" type="Double">27380</key>
+            <key name="MAX_UNCERTAINTY" type="Double">1</key>
+        </parameters>
+    </det>
+    <det>
+        <name>eMDM</name>
+        <factoryname>eMDMFactory</factoryname>
+        <parameters>
+            <key name="THRESHOLD_DISTANCE" type="Double">30</key>
+            <key name="THRESHOLD_TIME" type="Double">10</key>
+            <key name="SIGMA2" type="Double">117</key>
+        </parameters>
+    </det>
+    <det>
+        <name>eMGT</name>
+        <factoryname>eMGTFactory</factoryname>
+        <parameters>
+            <key name="THRESHOLD" type="Double">42</key>
+            <key name="SIGMA2" type="Double">122</key>
+        </parameters>
+    </det>
+    <det>
+        <name>SSC</name>
+        <factoryname>SSCFactory</factoryname>
+        <parameters>
+            <key name="TIME_THRESHOLD" type="Double">0.1</key>
+            <key name="REALISTIC_SPEED_DERIVATION" type="Double">5</key>
+            <key name="UNREALISTIC_SPEED_DERIVATION" type="Double">100</key>
+        </parameters>
+    </det>
+
+<!-- These are test detectors developed as part of Maat; they are probably not particularly reliable --> 
+    <det>
+        <name>SimpleSpeedVerifier</name>
+        <factoryname>SSVFactory</factoryname>
+        <parameters>
+        </parameters>
+    </det>
+    <det>
+        <name>DistanceMovedVerifier</name>
+        <factoryname>DistanceMovedFactory</factoryname>
+        <parameters>
+            <key name="THRESHOLD" type="Double">20</key>
+        </parameters>
+    </det>
+</detectors>

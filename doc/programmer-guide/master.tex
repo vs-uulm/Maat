@@ -1,0 +1,183 @@
+\documentclass{book}%[prodmode,acmcsur]{acmsmall}
+\RequirePackage[orthodox]{nag}
+
+\usepackage{dsfont}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{multirow}
+\usepackage{rotating}
+\usepackage{subfig}
+\usepackage{hyperref}
+\usepackage{longtable,booktabs,pdflscape}
+\usepackage{colortbl}
+\usepackage{qtree}
+
+\usepackage{tikz}
+
+\usepackage{multirow}
+
+\usepackage{fullpage}
+
+\usepackage{acronym}
+%%%%%%%%%%%%%%%%%%     START OF TIKZ/PGF     %%%%%%%%%%%%%%%%%%
+\usepackage{tikz}
+\usetikzlibrary{%
+	chains,
+	calc,
+	shapes,
+	decorations,
+	scopes,
+	arrows,
+	trees,
+	decorations.pathreplacing,
+	decorations.pathmorphing,
+	fit,
+	matrix
+}
+\newcommand\server{\includegraphics[height=2em]{img/server}}
+\newcommand\rsu{\includegraphics[height=2em]{img/rsu}}
+\newcommand\car{\includegraphics[width=2em]{img/car}}
+\newcommand\carattacker{\includegraphics[width=2em]{img/car-uuinf}}
+\newcommand\caruser{\carhighlight}
+\newcommand\carhighlight{\includegraphics[width=2em]{img/car-uumawi}}
+\newcommand\carr{\includegraphics[width=2em,angle=180]{img/car}}
+\newcommand\certificate{\includegraphics[height=1em]{img/certificate}}
+\newcommand\laptop{\includegraphics[height=2em]{img/laptop}}
+\newcommand\laptopattacker{\includegraphics[height=2em]{img/laptop-uuinf}}
+\newcommand\documenticon{\includegraphics[height=1em]{../img/document}}
+
+\tikzstyle{road-draw}=[draw=black,thick]
+\tikzstyle{road-fill}=[black!30]
+
+\newcommand\halfbasicroad{%
+% coordinates
+\foreach \pos/\coord in {top/3ex, center/0, bottom/-3ex}{
+\coordinate (\pos-left) at (0,\coord);
+\coordinate (\pos-right) at (0.4\textwidth-\pgflinewidth,\coord);
+}
+
+\coordinate (lane1-left) at (1,-1.5ex);
+\path (0.4\textwidth-\pgflinewidth,-1.5ex) +(-1,0) coordinate (lane1-right);
+\coordinate (lane2-left) at (1,1.5ex);
+\path (0.4\textwidth-\pgflinewidth,1.5ex) +(-1,0) coordinate (lane2-right);
+
+\coordinate (lane1) at (lane1-left);
+\coordinate (lane2) at (lane2-right);
+
+% basic road shape
+\fill[road-fill] (top-left) rectangle (bottom-right);
+\draw[road-draw] (top-left) -- (top-right);
+\draw[road-draw,loosely dashed] (center-left) -- (center-right);
+}
+
+\newcommand\basicroad{%
+% coordinates
+\foreach \pos/\coord in {top/3ex, center/0, bottom/-3ex}{
+\coordinate (\pos-left) at (0,\coord);
+\coordinate (\pos-right) at (\textwidth-\pgflinewidth,\coord);
+}
+
+\coordinate (lane1-left) at (1,-1.5ex);
+\path (\textwidth-\pgflinewidth,-1.5ex) +(-1,0) coordinate (lane1-right);
+\coordinate (lane2-left) at (1,1.5ex);
+\path (\textwidth-\pgflinewidth,1.5ex) +(-1,0) coordinate (lane2-right);
+
+\coordinate (lane1) at (lane1-left);
+\coordinate (lane2) at (lane2-right);
+
+% basic road shape
+\fill[road-fill] (top-left) rectangle (bottom-right);
+\draw[road-draw] (top-left) -- (top-right);
+\draw[road-draw,loosely dashed] (center-left) -- (center-right);
+}
+
+\newcommand\halfroad{%
+\halfbasicroad
+\draw[road-draw] (bottom-left) -- (bottom-right);
+}
+\newcommand\road{%
+\basicroad
+\draw[road-draw] (bottom-left) -- (bottom-right);
+}
+
+\newcommand\onramproad{%
+\basicroad
+
+% on-ramp bottom
+\fill[road-fill] (bottom-left) -- ++(3,0) to[out=0,in=180] ++(1,-3ex) -- ++(3,0) coordinate (bend) to[out=0,in=135] ++(1,-3ex) -- ++(45:3ex) to[out=135,in=0] (bend |- bottom-left) -- cycle;
+
+\draw[road-draw] (bottom-left) -- ++(3,0) coordinate (ramp-start) to[out=0,in=180] ++(1,-3ex) -- ++(3,0) coordinate (bend) to[out=0,in=135] ++(1,-3ex) ++(45:3ex) to[out=135,in=0] (bend |- bottom-left) coordinate (ramp-end) -- (bottom-right);
+
+\draw[road-draw,dashed] (ramp-start) -- (ramp-end);
+}
+
+\tikzstyle{pencil}=[decorate,
+    decoration={random steps,segment length=0.8pt,amplitude=0.3pt}]
+
+% Style for radio transmission paths.
+\tikzstyle{transmission}=[decorate, decoration={expanding waves, angle=4,
+                          segment length=3},
+                          very thick,
+                          black!10]
+
+\tikzstyle{attack}=[thick,text=black,draw=black,fill=black!10]
+
+%%COPY
+%SOURCE: http://tex.stackexchange.com/questions/21956/wedged-tapering-paths-in-tikz
+\pgfdeclaredecoration{triangle}{start}{
+  \state{start}[width=0.99\pgfdecoratedinputsegmentremainingdistance,next state=up from center]
+  {\pgfpathlineto{\pgfpointorigin}}
+  \state{up from center}[next state=do nothing]
+  {
+    \pgfpathlineto{\pgfqpoint{\pgfdecoratedinputsegmentremainingdistance}{\pgfdecorationsegmentamplitude}}
+    \pgfpathlineto{\pgfqpoint{\pgfdecoratedinputsegmentremainingdistance}{-\pgfdecorationsegmentamplitude}}
+    \pgfpathlineto{\pgfpointdecoratedpathfirst}
+  }
+  \state{do nothing}[width=\pgfdecorationsegmentlength,next state=do nothing]{
+    \pgfpathlineto{\pgfpointdecoratedinputsegmentfirst}
+    \pgfpathmoveto{\pgfpointdecoratedinputsegmentlast}
+  }
+}
+
+\tikzset{
+    triangle path/.style={decoration={triangle,amplitude=#1}, decorate},
+    triangle path/.default=1ex}
+%%ENDCOPY
+
+%%%%%%%%%%%%%%%%%%      END OF TIKZ/PGF      %%%%%%%%%%%%%%%%%%
+
+
+\newcommand\R{\mathds{R}}
+\newcommand\id{\mathbf{1}}
+
+\newcommand\eg{e.\,g.\xspace}
+\newcommand\ie{i.\,e.\xspace}
+
+\begin{document}
+\title{Programmer Guide for Maat}
+
+\author{Rens W. van der Heijden, \url{rensvdheijden@gmail.com} }
+
+            
+\maketitle
+
+\chapter*{About This Document}
+  This document provides a programmers' guide to Maat, explaining a number of higher level details that are not included in the scientific documentation. Maat is a tool designed to integrate a variety of different \emph{misbehavior detection mechanisms}, which detect certain types of attacks or inconsistencies in network communication. Maat combines the output of these mechanisms, with the goal of achieving better detection performance than the individual mechanisms. To achieve this, Maat relies on a logic called \emph{subjective logic}. The scientific documentation describes the details of this logic and some of the theoretical background regarding detection mechanisms. This documentation describes how to write detection mechanisms, how to extend Maat with new types of inputs, how applications can interact with the data contained in Maat, as well as the programming model and some background on how the system architecture was designed.
+
+\tableofcontents
+
+\input{01-overview.tex}
+\input{02-detection.tex}
+\input{03-inputs.tex}
+\input{04-applications.tex}
+\input{05-programming-model.tex}
+
+\chapter*{Acknowledgement}
+Maat was (initially) developed with generous funding from the Baden-W\"{u}rttemberg Stiftung gGmbH Stuttgart as part of the project IKT-05 AutoDetect of its IT security research programme.
+
+
+\bibliographystyle{abbrv}
+\bibliography{references}
+
+\end{document}

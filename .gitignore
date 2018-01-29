@@ -1,0 +1,21 @@
+#output folder
+out/
+bin/
+classes/
+#gradle build folders
+.gradle/
+build/
+#Eclipse files
+.project
+.classpath
+.settings/
+#Intellij Idea files
+.idea/
+module_autodetect-framework-implementation.xml
+autodetect-framework-implementation.xml
+*.iml
+autodetect-framework-implementation.properties
+
+#data files should be ignored by default
+*.tgz
+*.json

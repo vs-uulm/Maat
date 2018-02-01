@@ -8,3 +8,7 @@ This file lists all contributors to this project.
  - Sergej Schmidt
  - Florian Diemer
  - Johannes Diebold
+ - David Köhler
+ - Franziska Schönig
+ - Leo Hnatek
+

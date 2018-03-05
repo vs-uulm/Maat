@@ -1,5 +1,9 @@
 # Changelog for public releases of Maat
 
+## Version 0.1.1-VeReMi
+
+This version removes some outdated test data and documentation that has since become invalid
+
 ## Version 0.1-VeReMi
 
 This version contains the work done for the VeReMi paper, currently under review for SecureComm 2018.

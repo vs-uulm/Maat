@@ -19,11 +19,11 @@ import java.util.*;
 /**
  * @author Leo Hnatek
  */
-public class SSC extends Detector {
-    static final Logger l = LogManager.getLogger(SSC.class);
-    double TIME_THRESHOLD; // only use vectors within the boundary of { 0, TIME_THRESHOLD } - in sec.
-    double REALISTIC_SPEED_DERIVATION; // speed that is believed 100%
-    double UNREALISTIC_SPEED_DERIVATION; // speed that is believed 0%
+public class eSSC extends Detector {
+    static final Logger l = LogManager.getLogger(eSSC.class);
+    public double OK_DEV=0; // speed that is believed 100%
+    public double BAD_DEV; // speed that is believed 0%
+    public double UNCERTAINTY_FACTOR=0.1; //uncertainty of this detector
 
     /**
      * a List of the WorldModelDataTypes that are of interest for this Detector
@@ -40,7 +40,7 @@ public class SSC extends Detector {
 
     private final String beaconUID;
 
-    SSC(ComputeGraphNode output, WorldModelDiff diff, AbstractDetectorFactory factory)
+    eSSC(ComputeGraphNode output, WorldModelDiff diff, AbstractDetectorFactory factory)
             throws WorldModelException {
         super(output, factory);
 
@@ -48,7 +48,7 @@ public class SSC extends Detector {
 
         for (WorldModelItem i : diff.getChanges()) {
             if (i instanceof WorldModelDataVertex
-                    && ((WorldModelDataVertex) i).hasTypes(SSC.dataTypes)) {
+                    && ((WorldModelDataVertex) i).hasTypes(eSSC.dataTypes)) {
                 tmp = ((WorldModelDataVertex) i).UID;
             }
 
@@ -100,30 +100,27 @@ public class SSC extends Detector {
         // otherwise the length of the vector used to calculate distDiff might not
         // equal to length of the road
         // NOTE: one could use TIME_THRESHOLD as an index for uncertainty
-        if (timeDiff < TIME_THRESHOLD) {
-            SubjectiveOpinion opinion;
-            double deltaSpeed = Math.abs(claimedSpeed.getSpeed()-actualSpeed);
+        SubjectiveOpinion opinion;
+        double deltaSpeed = Math.abs(claimedSpeed.getSpeed()-actualSpeed);
 
-            // belief 100% as long deltaSpeed is REALISTIC, then linearly scale belief and disbelief
-            if (deltaSpeed < UNREALISTIC_SPEED_DERIVATION) {
+        // belief 100% as long deltaSpeed is REALISTIC, then linearly scale belief and disbelief
+        if (deltaSpeed < BAD_DEV) {
 
-                if (deltaSpeed <= REALISTIC_SPEED_DERIVATION) {
-                    opinion = new SubjectiveOpinion(1, 0, 0);
-                }
-                else {
-                    // disbelief = 0, when deltaSeed = REALISTIC_SPEED_DERIVATION
-                    // disbelief = 1, when deltaSpeed = UNREALISTIC_SPEED_DERIVATION
-                    double disbelief = (deltaSpeed - REALISTIC_SPEED_DERIVATION) / (UNREALISTIC_SPEED_DERIVATION - REALISTIC_SPEED_DERIVATION);
-                    opinion = new SubjectiveOpinion(1-disbelief, disbelief, 0);
-                }
+            if (deltaSpeed <= OK_DEV) {
+                opinion = new SubjectiveOpinion(1-UNCERTAINTY_FACTOR, 0, UNCERTAINTY_FACTOR);
             }
             else {
-                opinion = new SubjectiveOpinion(0, 1, 0);
+                // disbelief = 0, when deltaSpeed = OK_DEV
+                // disbelief = 1, when deltaSpeed = BAD_DEV
+                double disbelief = (deltaSpeed - OK_DEV) / (BAD_DEV - OK_DEV) * (1-UNCERTAINTY_FACTOR);
+                double belief = 1 - UNCERTAINTY_FACTOR - disbelief;
+                opinion = new SubjectiveOpinion(belief, disbelief, UNCERTAINTY_FACTOR);
             }
-            return Arrays.asList(new DetectionResultIPCMessage(msg, this.getDetectorSpecification(), opinion, dataContainer));
         }
-
-        return new ArrayList<>();
+        else {
+            opinion = new SubjectiveOpinion(0, 1-UNCERTAINTY_FACTOR, UNCERTAINTY_FACTOR);
+        }
+        return Arrays.asList(new DetectionResultIPCMessage(msg, this.getDetectorSpecification(), opinion, dataContainer));
     }
 
     @Override
@@ -143,7 +140,7 @@ public class SSC extends Detector {
         for (WorldModelItem i : item.getChanges()) {
             if (i instanceof WorldModelDataVertex) {
                 WorldModelDataVertex vertex = ((WorldModelDataVertex) i);
-                if (vertex.hasTypes(SSC.dataTypes) && (vertex.UID.equals(this.beaconUID)) && vertex.historySize() > 1)
+                if (vertex.hasTypes(eSSC.dataTypes) && (vertex.UID.equals(this.beaconUID)) && vertex.historySize() > 1)
                     return true;
             }
         }

@@ -34,10 +34,10 @@ import java.util.stream.Stream;
 public class eART extends Detector {
     static final Logger l = LogManager.getLogger(eART.class);
 
-    public double THRESHOLD; //See 10.18725/OPARU-4080
+    public double TH; //See 10.18725/OPARU-4080
     //public final double SIGMA = 225.0; //See 10.18725/OPARU-4080
-    public double SIGMA2;
-    public double MAX_UNCERTAINTY; //See 10.18725/OPARU-4080
+    public double SIGMA2=27380;
+    public double MAX_UNCERTAINTY=1; //See 10.18725/OPARU-4080
 
     /**
      * a List of the WorldModelDataTypes that are of interest for this Detector
@@ -121,7 +121,7 @@ public class eART extends Detector {
         SubjectiveOpinion opinion;
 
         // opinion for eART detector
-        opinion = getDetectionResult(distance, THRESHOLD);
+        opinion = getDetectionResult(distance, TH);
 
         return Arrays.asList(new DetectionResultIPCMessage(msg, this.getDetectorSpecification(), opinion, dataContainer));
     }

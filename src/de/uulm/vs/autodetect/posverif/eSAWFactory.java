@@ -17,15 +17,16 @@ public class eSAWFactory extends AbstractDetectorFactory {
         eSAW instance = new eSAW(output, reference, this);
         try {
             instance.setAttribute(this.pars, eSAW.class);
+            return instance;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             eSAW.l.error("", e);
         }
-        return instance;
+        return null;
     }
 
     @Override
     public String getName() {
-        return eSAW.class.getCanonicalName();
+        return eSAW.class.getName();
     }
 
     @Override

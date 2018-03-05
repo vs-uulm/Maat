@@ -18,10 +18,11 @@ public class OPDFactory extends AbstractDetectorFactory {
         OPD instance = new OPD(output, reference, this);
         try {
             instance.setAttribute(this.pars, OPD.class);
+            return instance;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             OPD.l.error("", e);
         }
-        return instance;
+        return null;
     }
 
     @Override

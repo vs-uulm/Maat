@@ -21,9 +21,9 @@ UPPER_LIMIT_NIGHT=49
 JOB_SUBMISSION_SCRIPT="`pwd`/job.moab"
 
 # Get the simulation count
-JOB_COUNT=$(find ${INPUT_DIR} -name "posverif_sim_job*.tgz" | wc -l)
+JOB_COUNT=$(find ${INPUT_DIR} -name "*.tgz" | wc -l)
 if [ 0 -eq ${JOB_COUNT} ]; then
-  echo "No posverif sim jobs in '${INPUT_DIR}'. Nothing to do."
+  echo "No sim jobs in '${INPUT_DIR}'. Nothing to do."
   exit
 fi
 
@@ -38,7 +38,7 @@ echo "Switched to ${WS_DIR}"
 
 # Outer control loop
 let "SLEEP_TIME=60"
-for fileName in $(find ${INPUT_DIR} -name "posverif_sim_job*.tgz"); do
+for fileName in $(find ${INPUT_DIR} -name "*.tgz"); do
   echo "${fileName}"
   declare -i UPPER_LIMIT
   h=$(date +%H)

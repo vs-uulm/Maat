@@ -61,7 +61,7 @@ public abstract class ComputeGraphNode implements Runnable {
                     }
                     //TODO this is a bit of a hack for termination (see below..)
                     if (this instanceof SnapshotManager && this.inputQueue.isEmpty()) {
-                        l.warn("SnapshotManager Queue is empty, we might be done..");
+                        l.trace("SnapshotManager Queue is empty, we might be done..");
                         Maat.executor.schedule(this, Maat.TIMEOUT, TimeUnit.MILLISECONDS);
                     }
                 }
@@ -76,7 +76,7 @@ public abstract class ComputeGraphNode implements Runnable {
             long t = System.currentTimeMillis();
             long diff = t - lastUpdate.get();
             if (this instanceof SnapshotManager && inputQueue.isEmpty()) {
-                l.warn("Queue empty! Timeout? " + diff + " = " + t + " - " + lastUpdate);
+                l.trace("Queue empty! Timeout? " + diff + " = " + t + " - " + lastUpdate);
                 if (diff > Maat.TIMEOUT) {
                     if (!terminating.getAndSet(true))
                         Maat.startTermination();

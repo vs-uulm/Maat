@@ -19,10 +19,11 @@ public class SSVFactory extends AbstractDetectorFactory {
         SimpleSpeedVerifier instance = new SimpleSpeedVerifier(output, reference, this);
         try {
             instance.setAttribute(this.pars, SimpleSpeedVerifier.class);
+            return instance;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             SimpleSpeedVerifier.l.error("", e);
         }
-        return instance;
+        return null;
     }
 
     @Override

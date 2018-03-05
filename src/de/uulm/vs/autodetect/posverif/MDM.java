@@ -22,7 +22,7 @@ import java.util.*;
 /**
  * Created by Florian Diemer on 28.03.2017.
  * <p>
- * copied from DistanceMovedVerifier
+ * copied from eDMV
  */
 public class MDM extends Detector {
     static final Logger l = LogManager.getLogger(MDM.class);

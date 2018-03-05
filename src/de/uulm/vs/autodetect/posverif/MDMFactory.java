@@ -17,10 +17,11 @@ public class MDMFactory extends AbstractDetectorFactory {
         MDM instance = new MDM(output, reference, this);
         try {
             instance.setAttribute(this.pars, MDM.class);
+            return instance;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             MDM.l.error("", e);
         }
-        return instance;
+        return null;
     }
 
     @Override

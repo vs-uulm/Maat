@@ -6,14 +6,14 @@
 #MSUB -q singlenode
 #MSUB -M 'rens.vanderheijden@uni-ulm.de'
 #MSUB -l nodes=1:ppn=4
-#MSUB -l pmem=2000mb
-#MSUB -l walltime=3:00:00
+#MSUB -l pmem=8000mb
+#MSUB -l walltime=12:00:00
 #
 # NOTE: Param 1 MUST be path to posverif file
 #       Param 2 is the attacker type (optional)
 #
 POSVERIF_FILE=$1
-MAX_PROCS=2
+MAX_PROCS=1
 ATTACKER_TYPE=""
 
 if [ ! -z "$2" ]; then
@@ -87,9 +87,10 @@ INPUT_DIR="${LOCAL_MAAT_DIR}/input_data"
 mkdir -p "${INPUT_DIR}"
 #only legitimate vehicles participate in detection
 tar -xvzf "${POSVERIF_FILE}" -C "${INPUT_DIR}" --strip-components=8 `tar -tf "${POSVERIF_FILE}" | grep 'A0.json'`
-JSONLogs="${INPUT_DIR}/JSONlog-*-A0.json"
+JSONLogs="${INPUT_DIR}/results/JSONlog-*-A0.json"
 
-
+echo ''
+echo "input data from: ${POSVERIF_FILE}"
 echo ''
 echo "############"
 echo "# Starting #"
@@ -106,8 +107,7 @@ echo "############"
 MAIN_CLASS="de.uulm.vs.autodetect.mds.framework.view.Maat"
 
 # run AutoDetect-framework-implementation
-#find ${JSONLogs} | xargs --max-procs=${MAX_PROCS} -i ./gradlew run -x build -x classes -PappArgs="['{}']" > "${LOCAL_MAAT_DIR}/log.txt"
-find ${JSONLogs} | parallel --joblog "parallel-log.txt" --max-procs=${MAX_PROCS} -I% java -jar "${LOCAL_MAAT_DIR}/Maat.jar" "%" > "${LOCAL_MAAT_DIR}/log.txt"
+find ${JSONLogs} | parallel --joblog "parallel.log" --max-procs=1 -I% java -jar "${LOCAL_MAAT_DIR}/Maat.jar" "%" > "${LOCAL_MAAT_DIR}/parallelstdout.log"
 FAILED_JOBS="$?"
 
 RESULTS_DIR="${LOCAL_MAAT_DIR}/results"
@@ -122,18 +122,17 @@ tar -xvzf "${POSVERIF_FILE}" -C "${RESULTS_DIR}" --strip-components=9 `tar -tf "
 
 # move detection results to RESULTS_DIR
 mv *.json "${RESULTS_DIR}"
-ls -1 "${RESULTS_DIR}" > input.txt
-mv input.txt "${RESULTS_DIR}"
+#ls -1 "${RESULTS_DIR}" > input.txt
+#mv input.txt "${RESULTS_DIR}"
 
 LOGS_DIR="${RESULTS_DIR}/logs"
 mkdir -p "${LOGS_DIR}"
-mv log.txt "${LOGS_DIR}"
-mv parallel-log.txt "${LOGS_DIR}"
+mv *.log "${LOGS_DIR}"
 
-mv *.txt "${RESULTS_DIR}"
+#mv *.txt "${LOGS_DIR}"
 
 # copy GroundTruthJSONlog.json to RESULTS_DIR
-tar -xvzf "${POSVERIF_FILE}" -C "${RESULTS_DIR}" --strip-components=8 `tar -tf "${POSVERIF_FILE}" | grep 'GroundTruthJSONlog.json'`
+tar -xvzf "${POSVERIF_FILE}" -C "${RESULTS_DIR}" --strip-components=9 `tar -tf "${POSVERIF_FILE}" | grep 'GroundTruthJSONlog.json'`
 
 #let RUNS=$H-$L+1
 #RES_FILE_COUNT=$(ls "${SIMULATION_DIR}/results/" | grep .sca | wc -l)

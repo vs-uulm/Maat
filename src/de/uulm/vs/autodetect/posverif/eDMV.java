@@ -21,10 +21,10 @@ import java.util.*;
 /**
  * Created by Rens van der Heijden on 1/18/17.
  */
-public class DistanceMovedVerifier extends Detector {
-    static final Logger l = LogManager.getLogger(DistanceMovedVerifier.class);
+public class eDMV extends Detector {
+    static final Logger l = LogManager.getLogger(eDMV.class);
 
-    public double THRESHOLD;
+    public double TH;
 
     /**
      * a List of the WorldModelDataTypes that are of interest for this Detector
@@ -39,7 +39,7 @@ public class DistanceMovedVerifier extends Detector {
 
     private final String beaconUID;
 
-    DistanceMovedVerifier(ComputeGraphNode output, WorldModelDiff diff, AbstractDetectorFactory factory)
+    eDMV(ComputeGraphNode output, WorldModelDiff diff, AbstractDetectorFactory factory)
             throws WorldModelException {
         super(output, factory);
 
@@ -47,7 +47,7 @@ public class DistanceMovedVerifier extends Detector {
 
         for (WorldModelItem i : diff.getChanges()) {
             if (i instanceof WorldModelDataVertex
-                    && ((WorldModelDataVertex) i).hasTypes(DistanceMovedVerifier.dataTypes)) {
+                    && ((WorldModelDataVertex) i).hasTypes(eDMV.dataTypes)) {
                 tmp = ((WorldModelDataVertex) i).UID;
             }
 
@@ -55,7 +55,7 @@ public class DistanceMovedVerifier extends Detector {
 
         if (tmp == null)
             throw new WorldModelException(
-                    "Constructing a DistanceMovedVerifier that cannot detect based on the supplied diff");
+                    "Constructing a eDMV that cannot detect based on the supplied diff");
 
         this.beaconUID = tmp;
     }
@@ -89,10 +89,10 @@ public class DistanceMovedVerifier extends Detector {
         PositionContainer currPos = (PositionContainer) last.get(WorldModelDataTypeEnum.POSITION);
 
         SubjectiveOpinion opinion;
-        if (currPos.distance(prevPos) < THRESHOLD)
-            opinion = new SubjectiveOpinion(1, 0, 0); //definitely 100% safe
+        if (currPos.distance(prevPos) > TH)
+            opinion = new SubjectiveOpinion(1, 0, 0);
         else
-            opinion = new SubjectiveOpinion(0, 0, 1); //I have no idea!!
+            opinion = new SubjectiveOpinion(0, 0.5, 0.5);
 
         return Arrays.asList(new DetectionResultIPCMessage(msg, this.getDetectorSpecification(), opinion, dataContainer));
     }
@@ -115,7 +115,7 @@ public class DistanceMovedVerifier extends Detector {
         for (WorldModelItem i : item.getChanges()) {
             if (i instanceof WorldModelDataVertex) {
                 WorldModelDataVertex vertex = ((WorldModelDataVertex) i);
-                if (vertex.hasTypes(DistanceMovedVerifier.dataTypes) //correct data type
+                if (vertex.hasTypes(eDMV.dataTypes) //correct data type
                         && vertex.historySize() > 1                  //more than one history item
                         && vertex.UID.equals(beaconUID))             //same source
                     return true;

@@ -17,10 +17,11 @@ public class SAWFactory extends AbstractDetectorFactory {
         SAW instance = new SAW(output, reference, this);
         try {
             instance.setAttribute(this.pars, SAW.class);
+            return instance;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             SAW.l.error("", e);
         }
-        return instance;
+        return null;
     }
 
     @Override

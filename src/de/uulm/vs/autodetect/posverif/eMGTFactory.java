@@ -20,10 +20,11 @@ public class eMGTFactory extends AbstractDetectorFactory {
         eMGT instance = new eMGT(output, reference, this);
         try {
             instance.setAttribute(this.pars, eMGT.class);
+            return instance;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             eMGT.l.error("", e);
         }
-        return instance;
+        return null;
     }
 
     @Override

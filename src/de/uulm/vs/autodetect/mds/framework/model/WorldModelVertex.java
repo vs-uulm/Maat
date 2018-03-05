@@ -42,7 +42,7 @@ public abstract class WorldModelVertex extends WorldModelItem {
             l.warn("Attempting to merge vertices with different UIDs! Vertices: " + this + " and " + v);
 
         if (this.versionID >= v.versionID)
-            l.warn("Overwriting more recent version in WorldModel! Current version " + this.versionID + " with new version: " + v.versionID);
+            l.trace("Overwriting more recent version in WorldModel! Current version " + this.versionID + " with new version: " + v.versionID); //TODO figure out why this always happens exactly once, at the end
         this.versionID = v.versionID;
 
         //TODO ensure this provides the necessary guarantees

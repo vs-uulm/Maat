@@ -16,6 +16,11 @@ autodetect-framework-implementation.xml
 *.iml
 autodetect-framework-implementation.properties
 
+#profiler folder
+profile-out
+
 #data files should be ignored by default
+testdata/mms
 *.tgz
 *.json
+*.log

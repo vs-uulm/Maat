@@ -17,10 +17,11 @@ public class eMDMFactory extends AbstractDetectorFactory {
         eMDM instance = new eMDM(output, reference, this);
         try {
             instance.setAttribute(this.pars, eMDM.class);
+            return instance;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             eMDM.l.error("", e);
         }
-        return instance;
+        return null;
     }
 
     @Override

@@ -21,15 +21,16 @@ public class eARTFactory extends AbstractDetectorFactory {
         eART instance = new eART(output, reference, this);
         try {
             instance.setAttribute(this.pars, eART.class);
+            return instance;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             eART.l.error("", e);
         }
-        return instance;
+        return null;
     }
 
     @Override
     public String getName() {
-        return eART.class.getCanonicalName();
+        return eART.class.getName();
     }
 
     @Override

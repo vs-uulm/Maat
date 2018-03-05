@@ -11,48 +11,44 @@ import de.uulm.vs.autodetect.mds.framework.model.containers.WorldModelDataTypeEn
 
 import java.util.Set;
 
-public class SSCFactory extends AbstractDetectorFactory {
-    public SSCFactory() {
+public class eDMVFactory extends AbstractDetectorFactory {
+
+    public eDMVFactory() {
     }
 
     @Override
     public Detector getNewInstance(ComputeGraphNode output, WorldModelDiff reference)
             throws WorldModelException {
-        SSC instance = new SSC(output, reference, this);
+        eDMV instance = new eDMV(output, reference, this);
         try {
-            instance.setAttribute(this.pars, SSC.class);
-        } catch (IllegalAccessException e) {
-            SSC.l.error("", e);
-        } catch (NoSuchFieldException e) {
-            SSC.l.error("", e);
+            instance.setAttribute(this.pars, eDMV.class);
+            return instance;
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            eDMV.l.error("", e);
         }
         return null;
     }
 
     @Override
     public String getName() {
-        return ART.class.getCanonicalName();
+        return eDMV.class.getName();
     }
 
     @Override
     public Set<WorldModelDataTypeEnum> getDataTypes() {
-        return ART.dataTypes;
+        return eDMV.dataTypes;
     }
 
     @Override
     public boolean canProcess(WorldModelDiff diff) {
-        boolean canProcess = false;
         for (WorldModelItem i : diff.getChanges()) {
             if (i instanceof WorldModelDataVertex) {
                 WorldModelDataVertex vertex = ((WorldModelDataVertex) i);
-                if (vertex.hasTypes(SSC.dataTypes))
-                    canProcess = true;
+                if (vertex.hasTypes(eDMV.dataTypes)
+                        && vertex.historySize() > 1)
+                    return true;
             }
         }
-
-        if (!canProcess)
-            return false; //nothing to process
-
-        return true;
+        return false;
     }
 }

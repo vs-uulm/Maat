@@ -3,7 +3,6 @@
 <detectors>
 <!-- Original detectors by Leinmueller et al. and Schmidt et al.
        See DOI:10.1002/sec.56 and http://leinmueller.de/lib/exe/fetch.php/publications/slshs08vebas.pdf
-       -->
     <det>
         <name>ART</name>
         <factoryname>ARTFactory</factoryname>
@@ -36,21 +35,10 @@
             <key name="THRESHOLD" type="Double">200</key>
         </parameters>
     </det>
-    <!-- Missing detectors from 10.1002/sec.56:
-         - maximum density threshold
-         - pro-active exchange
-         - reactive requests (not compatible with Maat's off-line variant)
-    -->
-    <!-- Missing detectors from http://leinmueller.de/lib/exe/fetch.php/publications/slshs08vebas.pdf:
-         - movement analysis (+/-)
-         - sensor-proofed position
-         - maximum beaconing frequency
-         - map-proofed position (would require adding map input to Maat; possible but big hurdle)
-    -->
+       -->
 
 <!-- Original Detector by Bissmeyer et al.:
       See DOI:10.1109/VNC.2010.5698232
-      -->
     <det>
         <name>OPD</name>
         <factoryname>OPDFactory</factoryname>
@@ -58,44 +46,78 @@
             <key name="THRESHOLD_DISTANCE" type="Double">50</key>
         </parameters>
     </det>
+      -->
 
-<!-- SL-enhanced version of Bissmeyer's detector, written by Florian Diemer -->
+    <!-- SL-enhanced version of Bissmeyer's detector, written by Florian Diemer
     <det>
         <name>eOPD</name>
         <factoryname>eOPDFactory</factoryname>
-        <parameters>
-            <key name="THRESHOLD_DISTANCE" type="Double">50</key>
-            <key name="GAMMA" type="Double">0.5</key>
-        </parameters>
-    </det>
+        <parameters> <key name="THRESHOLD_DISTANCE" type="Double">50</key> <key name="RECTANGLE_COUNT" type="Integer">6</key> <key name="GAMMA" type="Double">0.5</key> </parameters>
+    </det> -->
 
-<!-- SL-enhanced versions of Leinmueller and Schmidt et al detectors, co-contributed by Rens van der Heijden and Florian Diemer -->
+    <!-- first result set suggests eSAW performance against implemented attackers is independent of threshold.  -->
     <det>
         <name>eSAW</name>
         <factoryname>eSAWFactory</factoryname>
-        <parameters>
-            <key name="THRESHOLD" type="Double">200</key>
-            <key name="SIGMA2" type="Double">29020</key>
-        </parameters>
+        <parameters> <key name="TH" type="Double">025</key> </parameters>
+        <parameters> <key name="TH" type="Double">100</key> </parameters>
+        <parameters> <key name="TH" type="Double">200</key> </parameters>
     </det>
+
+    <!-- SL-enhanced versions of Leinmueller and Schmidt et al detectors, co-contributed by Rens van der Heijden and Florian Diemer -->
     <det>
         <name>eART</name>
         <factoryname>eARTFactory</factoryname>
-        <parameters>
-            <key name="THRESHOLD" type="Double">400</key>
-            <key name="SIGMA2" type="Double">27380</key>
-            <key name="MAX_UNCERTAINTY" type="Double">1</key>
-        </parameters>
-    </det>
+        <parameters> <key name="TH" type="Double">100</key> </parameters>
+        <parameters> <key name="TH" type="Double">200</key> </parameters>
+        <parameters> <key name="TH" type="Double">300</key> </parameters>
+        <parameters> <key name="TH" type="Double">400</key> </parameters>
+        <parameters> <key name="TH" type="Double">450</key> </parameters>
+        <parameters> <key name="TH" type="Double">500</key> </parameters>
+        <parameters> <key name="TH" type="Double">550</key> </parameters>
+        <parameters> <key name="TH" type="Double">600</key> </parameters>
+        <parameters> <key name="TH" type="Double">700</key> </parameters>
+        <parameters> <key name="TH" type="Double">800</key> </parameters>
+      </det>
+
+    <!-- Note: initial results suggest eMDM doesn't really work against our implemented attacks
     <det>
         <name>eMDM</name>
         <factoryname>eMDMFactory</factoryname>
-        <parameters>
-            <key name="THRESHOLD_DISTANCE" type="Double">30</key>
-            <key name="THRESHOLD_TIME" type="Double">10</key>
-            <key name="SIGMA2" type="Double">117</key>
-        </parameters>
+        <parameters> <key name="THRESHOLD_DISTANCE" type="Double">10</key> <key name="THRESHOLD_TIME" type="Double">10</key> <key name="SIGMA2" type="Double">117</key> </parameters>
+        <parameters> <key name="THRESHOLD_DISTANCE" type="Double">20</key> <key name="THRESHOLD_TIME" type="Double">10</key> <key name="SIGMA2" type="Double">117</key> </parameters>
+        <parameters> <key name="THRESHOLD_DISTANCE" type="Double">30</key> <key name="THRESHOLD_TIME" type="Double">10</key> <key name="SIGMA2" type="Double">117</key> </parameters>
+        <parameters> <key name="THRESHOLD_DISTANCE" type="Double">40</key> <key name="THRESHOLD_TIME" type="Double">10</key> <key name="SIGMA2" type="Double">117</key> </parameters>
+        <parameters> <key name="THRESHOLD_DISTANCE" type="Double">50</key> <key name="THRESHOLD_TIME" type="Double">10</key> <key name="SIGMA2" type="Double">117</key> </parameters>
     </det>
+    -->
+
+    <!-- Original Maat detector: verifies whether a threshold distance was moved by the sender. -->
+    <det>
+        <name>eDMV</name>
+        <factoryname>eDMVFactory</factoryname>
+        <parameters> <key name="TH" type="Double">01</key> </parameters>
+        <parameters> <key name="TH" type="Double">05</key> </parameters>
+        <parameters> <key name="TH" type="Double">10</key> </parameters>
+        <parameters> <key name="TH" type="Double">15</key> </parameters>
+        <parameters> <key name="TH" type="Double">20</key> </parameters>
+        <parameters> <key name="TH" type="Double">25</key> </parameters>
+      </det>
+
+    <det>
+        <name>eSSC</name>
+        <factoryname>eSSCFactory</factoryname>
+        <parameters> <key name="BAD_DEV" type="Double">05</key> </parameters>
+        <parameters> <key name="BAD_DEV" type="Double">10</key> </parameters>
+        <parameters> <key name="BAD_DEV" type="Double">15</key> </parameters>
+        <parameters> <key name="BAD_DEV" type="Double">20</key> </parameters>
+        <parameters> <key name="BAD_DEV" type="Double">30</key> </parameters>
+        <parameters> <key name="BAD_DEV" type="Double">40</key> </parameters>
+        <parameters> <key name="BAD_DEV" type="Double">50</key> </parameters>
+    </det>
+
+    <!--
+    Note: current eMGT implementation assumes distribution of speeds surrounding a threshold; this is not applicable in all scenarios, especially whenever traffic jams exist.
     <det>
         <name>eMGT</name>
         <factoryname>eMGTFactory</factoryname>
@@ -104,28 +126,14 @@
             <key name="SIGMA2" type="Double">122</key>
         </parameters>
     </det>
-    <det>
-        <name>SSC</name>
-        <factoryname>SSCFactory</factoryname>
-        <parameters>
-            <key name="TIME_THRESHOLD" type="Double">0.1</key>
-            <key name="REALISTIC_SPEED_DERIVATION" type="Double">5</key>
-            <key name="UNREALISTIC_SPEED_DERIVATION" type="Double">100</key>
-        </parameters>
-    </det>
+    -->
 
-<!-- These are test detectors developed as part of Maat; they are probably not particularly reliable --> 
+<!-- These are test detectors developed as part of Maat; they are probably not particularly sophisticated
     <det>
         <name>SimpleSpeedVerifier</name>
         <factoryname>SSVFactory</factoryname>
         <parameters>
         </parameters>
     </det>
-    <det>
-        <name>DistanceMovedVerifier</name>
-        <factoryname>DistanceMovedFactory</factoryname>
-        <parameters>
-            <key name="THRESHOLD" type="Double">20</key>
-        </parameters>
-    </det>
+     --> 
 </detectors>

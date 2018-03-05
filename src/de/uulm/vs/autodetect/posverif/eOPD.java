@@ -21,6 +21,7 @@ public class eOPD extends Detector {
     static final Logger l = LogManager.getLogger(eOPD.class);
 
     public double THRESHOLD_DISTANCE;
+    public int RECTANGLE_COUNT;
     public double GAMMA;
 
     /**
@@ -87,7 +88,7 @@ public class eOPD extends Detector {
                 if (worldModelDataVertex.historySize() >= 2 && !worldModelDataVertex.UID.equals(beaconUID)) {
                     pos2 = (PositionContainer) worldModelDataVertex.getLatestValue().get(WorldModelDataTypeEnum.POSITION);
                     if (pos1.distance(pos2) < THRESHOLD_DISTANCE) {
-                        detected = IntersectionCheck.intersects(worldModelDataVertex, dataContainer, 6);
+                        detected = IntersectionCheck.intersects(worldModelDataVertex, dataContainer, RECTANGLE_COUNT);
                         opinion = getDetectionResult(detected);
                         if ((currentOpinion == null) ||
                                 ((currentOpinion != null) && (opinion.getExpectation() < currentOpinion.getExpectation()))) {

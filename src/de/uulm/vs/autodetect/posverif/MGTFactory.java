@@ -21,10 +21,11 @@ public class MGTFactory extends AbstractDetectorFactory {
         MGT instance = new MGT(output, reference, this);
         try {
             instance.setAttribute(this.pars, MGT.class);
+            return instance;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             MGT.l.error("", e);
         }
-        return instance;
+        return null;
     }
 
     @Override

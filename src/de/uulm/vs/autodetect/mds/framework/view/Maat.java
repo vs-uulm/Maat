@@ -117,6 +117,7 @@ public class Maat implements Runnable {
                 f.get();
             } catch (ExecutionException e) {
                 l.warn("A parser failed: ", e);
+                System.exit(1);
             } catch (InterruptedException e) {
                 // interruptions can be ignored here
             }

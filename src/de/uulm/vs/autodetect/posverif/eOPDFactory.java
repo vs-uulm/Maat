@@ -14,7 +14,14 @@ import java.util.Set;
 public class eOPDFactory extends AbstractDetectorFactory {
     @Override
     public Detector getNewInstance(ComputeGraphNode output, WorldModelDiff reference) throws WorldModelException {
-        return new eOPD(output, reference, this);
+        eOPD instance = new eOPD(output, reference, this);
+        try {
+            instance.setAttribute(this.pars, eOPD.class);
+            return instance;
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            eART.l.error("", e);
+        }
+        return null;
     }
 
     @Override

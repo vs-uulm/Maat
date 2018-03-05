@@ -22,8 +22,8 @@ import java.util.stream.Stream;
 public class eSAW extends Detector {
     static final Logger l = LogManager.getLogger(eSAW.class);
 
-    public double THRESHOLD;
-    public double SIGMA2;
+    public double TH;
+    public double SIGMA2=29020;
 
     /**
      * a List of the WorldModelDataTypes that are of interest for this Detector
@@ -102,17 +102,16 @@ public class eSAW extends Detector {
 
         SubjectiveOpinion opinion;
         // opinion for eSAW detector
-        opinion = getDetectionResult(distance, THRESHOLD);
+        opinion = getDetectionResult(distance, TH);
         return Arrays.asList(new DetectionResultIPCMessage(msg, this.getDetectorSpecification(), opinion, dataContainer));
     }
 
     SubjectiveOpinion getDetectionResult(double distance, double threshold) {
-        // TODO test values
         double uncertainty = Math.exp(-(Math.pow(distance - threshold, 2.0) / (2.0 * SIGMA2)));
         double belief = 0.0;
         double disbelief = 0.0;
         if (distance > threshold) {
-            uncertainty = 1.0;
+            belief = 1.0 - uncertainty;
         } else {
             disbelief = 1.0 - uncertainty;
         }
